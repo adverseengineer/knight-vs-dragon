@@ -2,6 +2,7 @@
 //main.c
 
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -16,6 +17,8 @@ typedef signed char s8;
 typedef signed short s16;
 typedef signed int s32;
 typedef signed long s64;
+
+bool keep_running = true;
 
 u32 hero_maxHP = 300;
 s32 hero_curHP = 300;
@@ -36,9 +39,7 @@ s32 mstr_critMod = 255;
 u32 mstr_deaths = 0;
 
 void SIGINT_handler(int _unused) {
-	printf("\nHero Deaths: %d\n", hero_deaths);
-	printf("Monster Deaths: %d\n", mstr_deaths);
-	exit(0);
+	keep_running = false;
 }
 
 //simulates the monster's actions
@@ -94,7 +95,7 @@ int main(int argc, char** argv) {
 	signal(SIGINT, SIGINT_handler);
 	srand(time(NULL));
 	
-	while(1) {
+	while(keep_running) {
 		
 		hero_curHP = hero_maxHP;
 		mstr_curHP = mstr_maxHP;
@@ -116,4 +117,12 @@ int main(int argc, char** argv) {
 		
 		printf("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
 	}
+	
+	u32 total = hero_deaths + mstr_deaths;
+	float hero_chance = (float) mstr_deaths / total;
+	float mstr_chance = (float) hero_deaths / total;
+	
+	printf("Total Runs: %d\n", total);
+	printf("Hero's Chance of Victory: %f%%\n", hero_chance * 100);
+	printf("Monster's Chance of Victory: %f%%\n", mstr_chance * 100);
 }
